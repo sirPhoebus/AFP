@@ -14,6 +14,7 @@ Establish deterministic workflow persistence and transition authority.
 - [ ] E1-T4 Implement lifecycle enum and transition map in workflow engine.
 - [ ] E1-T5 Implement transition validator with machine-readable reason codes.
 - [ ] E1-T6 Add restart-recovery scenario test for synthetic run progression.
+- [ ] E1-T7 Add execution-policy checks for required skill usage and correct folder-scoped agent selection during coding tasks.
 
 ### Dependencies
 - None (foundation epic).
