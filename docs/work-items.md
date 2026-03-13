@@ -8,12 +8,12 @@ This backlog operationalizes `technical-plan.md` into trackable epics and tasks.
 Establish deterministic workflow persistence and transition authority.
 
 ### Tasks
-- [ ] E1-T1 Define schema for `runs`, `tasks`, `task_dependencies`.
-- [ ] E1-T2 Define schema for `approvals`, `artefacts`, `executions`.
-- [ ] E1-T3 Define schema for `logs`, `eval_runs`, `policy_decisions`.
-- [ ] E1-T4 Implement lifecycle enum and transition map in workflow engine.
-- [ ] E1-T5 Implement transition validator with machine-readable reason codes.
-- [ ] E1-T6 Add restart-recovery scenario test for synthetic run progression.
+- [x] E1-T1 Define schema for `runs`, `tasks`, `task_dependencies`.
+- [x] E1-T2 Define schema for `approvals`, `artefacts`, `executions`.
+- [x] E1-T3 Define schema for `logs`, `eval_runs`, `policy_decisions`.
+- [x] E1-T4 Implement lifecycle enum and transition map in workflow engine.
+- [x] E1-T5 Implement transition validator with machine-readable reason codes.
+- [x] E1-T6 Add restart-recovery scenario test for synthetic run progression.
 
 ### Dependencies
 - None (foundation epic).
@@ -27,11 +27,11 @@ Establish deterministic workflow persistence and transition authority.
 Expose minimum control plane and async task dispatch surface.
 
 ### Tasks
-- [ ] E2-T1 Scaffold API service and health endpoint.
-- [ ] E2-T2 Add `POST /runs` and `GET /runs/{run_id}` endpoints.
-- [ ] E2-T3 Add `GET /runs/{run_id}/tasks` endpoint.
-- [ ] E2-T4 Add queue envelope schema including retry metadata.
-- [ ] E2-T5 Add worker loop that emits transition events to workflow engine.
+- [x] E2-T1 Scaffold API service and health endpoint.
+- [x] E2-T2 Add `POST /runs` and `GET /runs/{run_id}` endpoints.
+- [x] E2-T3 Add `GET /runs/{run_id}/tasks` endpoint.
+- [x] E2-T4 Add queue envelope schema including retry metadata.
+- [x] E2-T5 Add worker loop that emits transition events to workflow engine.
 
 ### Dependencies
 - Depends on E1 transition contracts and schema.
