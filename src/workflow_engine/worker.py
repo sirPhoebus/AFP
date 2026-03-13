@@ -1,8 +1,12 @@
-"""Minimal in-memory queue + worker loop for Milestone A bootstrap."""
+"""Queue backends and worker loop primitives for bootstrap orchestration."""
 
 from collections import deque
 from dataclasses import dataclass
+from json import dumps, loads
 from typing import Callable, Iterable
+from uuid import UUID
+
+from redis import Redis
 
 from .events import QueueEnvelope, WorkflowEvent
 
@@ -25,6 +29,48 @@ class InMemoryQueue:
 
     def size(self) -> int:
         return len(self._items)
+
+
+class RedisQueue:
+    """Redis-backed queue with the same interface as the in-memory queue."""
+
+    def __init__(self, url: str, key: str = "afp:queue") -> None:
+        self._redis = Redis.from_url(url, decode_responses=True)
+        self._key = key
+
+    def enqueue(self, envelope: QueueEnvelope) -> None:
+        self._redis.rpush(
+            self._key,
+            dumps(
+                {
+                    "run_id": str(envelope.run_id),
+                    "task_id": str(envelope.task_id),
+                    "attempt": envelope.attempt,
+                    "max_retries": envelope.max_retries,
+                    "not_before_epoch_ms": envelope.not_before_epoch_ms,
+                },
+                sort_keys=True,
+            ),
+        )
+
+    def dequeue(self) -> QueueEnvelope | None:
+        payload = self._redis.lpop(self._key)
+        if payload is None:
+            return None
+        item = loads(payload)
+        return QueueEnvelope(
+            run_id=UUID(item["run_id"]),
+            task_id=UUID(item["task_id"]),
+            attempt=item["attempt"],
+            max_retries=item["max_retries"],
+            not_before_epoch_ms=item.get("not_before_epoch_ms"),
+        )
+
+    def size(self) -> int:
+        return int(self._redis.llen(self._key))
+
+    def clear(self) -> None:
+        self._redis.delete(self._key)
 
 
 def drain_worker_once(

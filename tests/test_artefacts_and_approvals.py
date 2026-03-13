@@ -1,7 +1,7 @@
 import unittest
 from uuid import uuid4
 
-from orchestrator_api.app import APPROVALS, ARTEFACTS, QUEUE, RUNS, TASKS, app
+from orchestrator_api.app import APPROVALS, ARTEFACTS, QUEUE, RUNS, TASKS, TASK_DEPENDENCIES, app
 
 
 class ArtefactAndApprovalApiTests(unittest.TestCase):
@@ -10,6 +10,7 @@ class ArtefactAndApprovalApiTests(unittest.TestCase):
         TASKS.clear()
         APPROVALS.clear()
         ARTEFACTS.clear()
+        TASK_DEPENDENCIES.clear()
         while QUEUE.dequeue() is not None:
             pass
         self.client = app.test_client()
@@ -187,6 +188,37 @@ class ArtefactAndApprovalApiTests(unittest.TestCase):
         self.client.post(f"/runs/{run_id}/tasks/{task_two}/transition", json={"to_state": "merged"})
 
         self.assertEqual(self.client.get(f"/runs/{run_id}").get_json()["state"], "integration_pass")
+
+    def test_dependency_blocked_task_promotes_when_prerequisite_reaches_unit_pass(self) -> None:
+        run_id = self.client.post("/runs", json={"title": "deps"}).get_json()["id"]
+        first_task = self.client.post(f"/runs/{run_id}/tasks", json={"name": "first"}).get_json()
+        second_task = self.client.post(
+            f"/runs/{run_id}/tasks",
+            json={"name": "second", "depends_on_task_ids": [first_task["id"]]},
+        ).get_json()
+
+        self.assertEqual(second_task["state"], "blocked")
+
+        self.client.post(f"/runs/{run_id}/tasks/{first_task['id']}/transition", json={"to_state": "in_progress"})
+        self.client.post(f"/runs/{run_id}/tasks/{first_task['id']}/transition", json={"to_state": "unit_pass"})
+
+        tasks = {task["name"]: task for task in self.client.get(f"/runs/{run_id}/tasks").get_json()}
+        self.assertEqual(tasks["second"]["state"], "ready")
+        self.assertEqual(QUEUE.size(), 2)
+
+    def test_dag_endpoint_returns_nodes_and_edges(self) -> None:
+        run_id = self.client.post("/runs", json={"title": "deps"}).get_json()["id"]
+        first_task = self.client.post(f"/runs/{run_id}/tasks", json={"name": "first"}).get_json()
+        second_task = self.client.post(
+            f"/runs/{run_id}/tasks",
+            json={"name": "second", "depends_on_task_ids": [first_task["id"]]},
+        ).get_json()
+
+        dag = self.client.get(f"/runs/{run_id}/dag")
+        self.assertEqual(dag.status_code, 200)
+        body = dag.get_json()
+        self.assertEqual(len(body["nodes"]), 2)
+        self.assertEqual(body["edges"], [{"task_id": second_task["id"], "depends_on_task_id": first_task["id"]}])
 
 
 if __name__ == "__main__":

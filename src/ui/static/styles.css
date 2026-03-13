@@ -1,0 +1,61 @@
+:root {
+  --bg: #f3efe6;
+  --ink: #1d2b24;
+  --accent: #ae3d1b;
+  --panel: rgba(255, 252, 246, 0.86);
+  --border: rgba(29, 43, 36, 0.18);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(174, 61, 27, 0.16), transparent 32%),
+    linear-gradient(135deg, #f7f2e8 0%, #ece2cf 100%);
+}
+.shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 20px 72px;
+}
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+.lede {
+  max-width: 48rem;
+  font-size: 1.05rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+.panel {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 40px rgba(29, 43, 36, 0.08);
+}
+.run {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.run:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.state {
+  color: var(--accent);
+}

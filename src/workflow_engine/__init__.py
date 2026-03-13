@@ -2,7 +2,7 @@
 
 from .events import QueueEnvelope, WorkflowEvent
 from .state_machine import LifecycleState, TransitionResult, apply_transition
-from .worker import InMemoryQueue, drain_worker_once, recover_inflight_tasks
+from .worker import InMemoryQueue, RedisQueue, drain_worker_once, recover_inflight_tasks
 
 __all__ = [
     "LifecycleState",
@@ -11,6 +11,7 @@ __all__ = [
     "QueueEnvelope",
     "WorkflowEvent",
     "InMemoryQueue",
+    "RedisQueue",
     "drain_worker_once",
     "recover_inflight_tasks",
 ]

@@ -16,6 +16,10 @@ class WorkflowEvent:
     task_id: UUID | None = None
     payload: dict[str, Any] = field(default_factory=dict)
     idempotency_key: str | None = None
+    correlation_id: str | None = None
+    causation_id: str | None = None
+    schema_version: int = 1
+    replayed_from_event_id: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 

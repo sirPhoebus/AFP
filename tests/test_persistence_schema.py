@@ -32,8 +32,20 @@ class PersistenceSchemaTests(unittest.TestCase):
                 "logs",
                 "eval_runs",
                 "policy_decisions",
+                "workflow_events",
+                "unit_evidence",
+                "outbox_events",
+                "schema_migrations",
             }.issubset(table_names)
         )
+
+    def test_init_db_registers_migrations_and_indexes(self) -> None:
+        init_db(self.connection)
+        migrations = self.connection.execute("SELECT version FROM schema_migrations").fetchall()
+        indexes = self.connection.execute("SELECT name FROM sqlite_master WHERE type = 'index'").fetchall()
+
+        self.assertTrue(any(row[0] == "001_core_schema.sql" for row in migrations))
+        self.assertTrue(any(row[0] == "idx_tasks_run_state" for row in indexes))
 
     def test_tasks_and_policy_decisions_have_expected_foreign_keys(self) -> None:
         init_db(self.connection)
