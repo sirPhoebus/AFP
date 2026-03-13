@@ -22,11 +22,16 @@ class LifecycleState(str, Enum):
 
 
 ALLOWED_TRANSITIONS: dict[LifecycleState, set[LifecycleState]] = {
-    LifecycleState.NEW: {LifecycleState.ENRICHED, LifecycleState.CANCELLED},
+    LifecycleState.NEW: {
+        LifecycleState.ENRICHED,
+        LifecycleState.AWAITING_APPROVAL,
+        LifecycleState.READY,
+        LifecycleState.CANCELLED,
+    },
     LifecycleState.ENRICHED: {LifecycleState.PLANNED, LifecycleState.BLOCKED, LifecycleState.NEEDS_HUMAN},
     LifecycleState.PLANNED: {LifecycleState.AWAITING_APPROVAL, LifecycleState.BLOCKED},
     LifecycleState.AWAITING_APPROVAL: {LifecycleState.READY, LifecycleState.NEEDS_HUMAN, LifecycleState.CANCELLED},
-    LifecycleState.READY: {LifecycleState.IN_PROGRESS, LifecycleState.CANCELLED},
+    LifecycleState.READY: {LifecycleState.AWAITING_APPROVAL, LifecycleState.IN_PROGRESS, LifecycleState.NEEDS_HUMAN, LifecycleState.CANCELLED},
     LifecycleState.IN_PROGRESS: {LifecycleState.UNIT_PASS, LifecycleState.FAILED, LifecycleState.BLOCKED},
     LifecycleState.UNIT_PASS: {LifecycleState.PR_OPEN, LifecycleState.FAILED},
     LifecycleState.PR_OPEN: {LifecycleState.INTEGRATION_PASS, LifecycleState.FAILED},

@@ -6,10 +6,10 @@ from agent_runner import InMemoryQueue, QueueEnvelope, worker_tick
 from workflow_engine import LifecycleState
 
 try:
-    from orchestrator_api.app import TASKS, RUNS, app
+    from orchestrator_api.app import QUEUE, TASKS, RUNS, app
 except ModuleNotFoundError:  # pragma: no cover - environment dependency
     app = None
-    TASKS = RUNS = None
+    QUEUE = TASKS = RUNS = None
 
 
 @unittest.skipIf(app is None, "Flask is not installed in this environment")
@@ -17,6 +17,8 @@ class ApiTests(unittest.TestCase):
     def setUp(self) -> None:
         RUNS.clear()
         TASKS.clear()
+        while QUEUE.dequeue() is not None:
+            pass
         self.client = app.test_client()
 
     def test_create_run_and_fetch_tasks(self) -> None:
@@ -27,6 +29,7 @@ class ApiTests(unittest.TestCase):
         run_id = body["run"]["id"]
         self.assertEqual(body["run"]["state"], "new")
         self.assertEqual(len(body["tasks"]), 1)
+        self.assertEqual(set(body.keys()), {"id", "run", "tasks"})
 
         get_tasks_response = self.client.get(f"/runs/{run_id}/tasks")
         self.assertEqual(get_tasks_response.status_code, 200)
@@ -34,6 +37,20 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(tasks_body["run_id"], run_id)
         self.assertEqual(len(tasks_body["tasks"]), 1)
         self.assertEqual(tasks_body["tasks"][0]["state"], "ready")
+
+    def test_require_approval_task_starts_in_awaiting_approval(self) -> None:
+        from orchestrator_api.app import QUEUE
+
+        run_response = self.client.post("/runs", json={"title": "gated-run"})
+        run_id = run_response.get_json()["id"]
+        task_response = self.client.post(
+            f"/runs/{run_id}/tasks",
+            json={"name": "gated", "require_approval": True},
+        )
+
+        self.assertEqual(task_response.status_code, 201)
+        self.assertEqual(task_response.get_json()["state"], "awaiting_approval")
+        self.assertEqual(QUEUE.size(), 0)
 
 
 class WorkerLoopTests(unittest.TestCase):

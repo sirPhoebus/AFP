@@ -42,6 +42,10 @@ class MilestoneATests(unittest.TestCase):
         self.assertEqual(drain_resp.get_json()["status"], "processed")
         self.assertEqual(QUEUE.size(), 0)
 
+        run_resp = self.client.get(f"/runs/{run_id}")
+        self.assertEqual(run_resp.status_code, 200)
+        self.assertEqual(run_resp.get_json()["state"], "in_progress")
+
         events_resp = self.client.get("/workflow-events")
         self.assertEqual(events_resp.status_code, 200)
         events = events_resp.get_json()

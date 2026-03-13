@@ -2,7 +2,7 @@
 
 from collections import deque
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Iterable
 
 from .events import QueueEnvelope, WorkflowEvent
 
@@ -49,3 +49,24 @@ def drain_worker_once(
     )
     emit_event(event)
     return event
+
+
+def recover_inflight_tasks(
+    queue: InMemoryQueue,
+    inflight_envelopes: Iterable[QueueEnvelope],
+) -> list[QueueEnvelope]:
+    """Requeue unique retryable envelopes after a worker restart."""
+    recovered: list[QueueEnvelope] = []
+    seen_task_ids: set[str] = set()
+
+    for envelope in inflight_envelopes:
+        task_id = str(envelope.task_id)
+        if task_id in seen_task_ids or not envelope.can_retry():
+            continue
+
+        next_envelope = envelope.next_attempt()
+        queue.enqueue(next_envelope)
+        recovered.append(next_envelope)
+        seen_task_ids.add(task_id)
+
+    return recovered
