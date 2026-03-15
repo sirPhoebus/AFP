@@ -34,7 +34,7 @@ UI_STATIC_DIR = Path(__file__).resolve().parents[1] / "ui" / "static"
 
 def register_routes(app: Flask, service: WorkflowService, *, config: AppConfig) -> None:
     repository = service.repository
-    agent_registry = AgentRegistry()
+    agent_registry = AgentRegistry(config)
 
     @app.get("/health")
     def health() -> tuple[dict[str, str], int]:
@@ -640,6 +640,9 @@ def register_routes(app: Flask, service: WorkflowService, *, config: AppConfig) 
                 "approval_roles": list(config.approval_roles),
                 "secret_sources": config.secret_sources(),
                 "auth_enabled": bool(config.api_token),
+                "agent_provider_base_url": config.agent_provider_base_url,
+                "agent_provider_model": config.agent_provider_model,
+                "agent_provider_timeout_seconds": config.agent_provider_timeout_seconds,
             }
         ), 200
 

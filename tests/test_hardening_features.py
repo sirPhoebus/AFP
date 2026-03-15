@@ -123,6 +123,8 @@ class HardeningFeatureTests(unittest.TestCase):
         self.assertEqual(metrics.status_code, 200)
         self.assertIn("afp_queue_depth", metrics.get_data(as_text=True))
         self.assertEqual(ops_config.status_code, 200)
+        self.assertIn("agent_provider_base_url", ops_config.get_json())
+        self.assertIn("agent_provider_model", ops_config.get_json())
         self.assertEqual(backup.status_code, 200)
 
     def test_dashboard_counts_pending_approvals_across_runs(self) -> None:

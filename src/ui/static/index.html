@@ -13,6 +13,43 @@
       <h1>Workflow Console</h1>
       <p class="lede">Runs, approvals, evidence, and merge readiness in one place.</p>
     </section>
+    <section class="grid controls-grid">
+      <article class="panel">
+        <h2>Create Run</h2>
+        <form id="create-run-form" class="stack">
+          <label class="field">
+            <span>Title</span>
+            <input id="run-title" name="title" type="text" placeholder="demo-run" value="hello-world-run">
+          </label>
+          <button type="submit">Create Run</button>
+        </form>
+      </article>
+      <article class="panel">
+        <h2>Add Task</h2>
+        <form id="create-task-form" class="stack">
+          <label class="field">
+            <span>Run</span>
+            <select id="task-run-id" name="run_id"></select>
+          </label>
+          <label class="field">
+            <span>Name</span>
+            <input id="task-name" name="name" type="text" placeholder="build" value="print-hello">
+          </label>
+          <label class="field">
+            <span>Max Retries</span>
+            <input id="task-max-retries" name="max_retries" type="number" min="0" value="3">
+          </label>
+          <button type="submit">Add Task</button>
+        </form>
+      </article>
+      <article class="panel">
+        <h2>Worker</h2>
+        <div class="stack">
+          <button id="drain-worker" type="button">Process One Ready Task</button>
+          <div id="worker-status" class="status">Idle.</div>
+        </div>
+      </article>
+    </section>
     <section class="grid">
       <article class="panel">
         <h2>Runs</h2>
@@ -21,6 +58,21 @@
       <article class="panel">
         <h2>Health</h2>
         <div id="health">Loading...</div>
+      </article>
+      <article class="panel">
+        <h2>Selected Run</h2>
+        <div id="run-detail">No run selected.</div>
+      </article>
+      <article class="panel">
+        <h2>Quick Example</h2>
+        <p class="meta">Default flow with the current UI:</p>
+        <pre class="code-sample"><code>1. Create run "hello-world-run"
+2. Add task "print-hello"
+3. Click "Process One Ready Task"</code></pre>
+      </article>
+      <article class="panel panel-wide">
+        <h2>Activity</h2>
+        <div id="activity" class="status">Ready.</div>
       </article>
     </section>
   </main>
